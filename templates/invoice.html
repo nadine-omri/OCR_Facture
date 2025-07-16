@@ -4,7 +4,7 @@
   <h2>Parsed Invoice</h2>
 
   <section class="card hdr">
-    <h3>Header</h3>
+    <h3><i class="fas fa-file-invoice"></i> Header Details</h3>
     <table class="kv">
       <tr><th>Invoice #</th><td>{{ invoice.header.invoice_number }}</td></tr>
       <tr><th>Date</th><td>{{ invoice.header.invoice_date }}</td></tr>
@@ -19,7 +19,7 @@
   </section>
 
   <section class="card lines">
-    <h3>Line items</h3>
+    <h3><i class="fas fa-list"></i> Line Items</h3>
     {% if invoice.lines %}
       <table class="items">
         <thead>
@@ -51,7 +51,7 @@
   </section>
 
   <section class="card totals">
-    <h3>Totals</h3>
+    <h3><i class="fas fa-calculator"></i> Totals</h3>
     {% if invoice.totals %}
       <table class="kv">
         <tr><th>Total HT</th><td class="num">{{ invoice.totals.total_ht }}</td></tr>
@@ -65,12 +65,16 @@
   </section>
 
   <section class="card raw">
-    <h3>Raw OCR Text</h3>
+    <h3><i class="fas fa-code"></i> Raw OCR Text</h3>
     <pre>{{ invoice.raw_text }}</pre>
   </section>
 
-  <p class="actions">
-    <a href="{{ url_for('invoice_json', invoice_id=invoice_id) }}">View JSON (API)</a> |
-    <a href="{{ url_for('invoice_download_json', invoice_id=invoice_id) }}">Download JSON</a>
-  </p>
+  <div class="actions">
+    <a href="{{ url_for('invoice_json', invoice_id=invoice_id) }}" class="action-btn primary">
+      <i class="fas fa-file-code"></i> View JSON (API)
+    </a>
+    <a href="{{ url_for('invoice_download_json', invoice_id=invoice_id) }}" class="action-btn secondary">
+      <i class="fas fa-download"></i> Download JSON
+    </a>
+  </div>
 {% endblock %}
