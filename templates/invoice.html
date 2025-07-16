@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Invoice {{ invoice.header.invoice_number or '' }}{% endblock %}
+{% block content %}
+  <h2>Parsed Invoice</h2>
+
+  <section class="card hdr">
+    <h3>Header</h3>
+    <table class="kv">
+      <tr><th>Invoice #</th><td>{{ invoice.header.invoice_number }}</td></tr>
+      <tr><th>Date</th><td>{{ invoice.header.invoice_date }}</td></tr>
+      <tr><th>Customer Name</th><td>{{ invoice.header.customer_name }}</td></tr>
+      <tr><th>Customer Type</th><td>{{ invoice.header.customer_type }}</td></tr>
+      <tr><th>Address</th><td>{{ invoice.header.customer_address }}</td></tr>
+      <tr><th>Mode de règlement</th><td>{{ invoice.header.mode_reglement }}</td></tr>
+      <tr><th>Référence</th><td>{{ invoice.header.reference }}</td></tr>
+      <tr><th>MF</th><td>{{ invoice.header.mf }}</td></tr>
+      <tr><th>C.C.B / RIB</th><td>{{ invoice.header.rib }}</td></tr>
+    </table>
+  </section>
+
+  <section class="card lines">
+    <h3>Line items</h3>
+    {% if invoice.lines %}
+      <table class="items">
+        <thead>
+          <tr>
+            <th>Réf</th>
+            <th>Désignation</th>
+            <th>Qté</th>
+            <th>PU</th>
+            <th>Remise</th>
+            <th>Montant HT</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ln in invoice.lines %}
+            <tr>
+              <td>{{ ln.reference }}</td>
+              <td>{{ ln.designation }}</td>
+              <td class="num">{{ ln.quantity }}</td>
+              <td class="num">{{ ln.unit_price }}</td>
+              <td class="num">{{ ln.discount }}</td>
+              <td class="num">{{ ln.amount_ht }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No line items parsed.</p>
+    {% endif %}
+  </section>
+
+  <section class="card totals">
+    <h3>Totals</h3>
+    {% if invoice.totals %}
+      <table class="kv">
+        <tr><th>Total HT</th><td class="num">{{ invoice.totals.total_ht }}</td></tr>
+        <tr><th>Total Taxe</th><td class="num">{{ invoice.totals.total_tax }}</td></tr>
+        <tr><th>Total TTC</th><td class="num">{{ invoice.totals.total_ttc }}</td></tr>
+        <tr><th>Net à payer</th><td class="num">{{ invoice.totals.net_to_pay }}</td></tr>
+      </table>
+    {% else %}
+      <p>No totals parsed.</p>
+    {% endif %}
+  </section>
+
+  <section class="card raw">
+    <h3>Raw OCR Text</h3>
+    <pre>{{ invoice.raw_text }}</pre>
+  </section>
+
+  <p class="actions">
+    <a href="{{ url_for('invoice_json', invoice_id=invoice_id) }}">View JSON (API)</a> |
+    <a href="{{ url_for('invoice_download_json', invoice_id=invoice_id) }}">Download JSON</a>
+  </p>
+{% endblock %}

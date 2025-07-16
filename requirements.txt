@@ -1,0 +1,11 @@
+Flask>=3.0
+Werkzeug>=3.0
+pytesseract>=0.3.10
+pillow>=10.0
+opencv-python-headless>=4.10
+pdf2image>=1.17
+numpy>=1.26
+
+# structured photo OCR
+easyocr>=1.7
+unidecode>=1.3

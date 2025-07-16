@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{% block title %}Invoice OCR{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- inline CSS -->
+    <style>
+      *{box-sizing:border-box;}
+      html,body{margin:0;padding:0;}
+      body{
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,"Noto Sans",sans-serif;
+        background:#f4f6f8;
+        color:#111;
+        line-height:1.45;
+      }
+      .topbar{
+        background:#1e88e5;
+        padding:1rem 2rem;
+      }
+      .topbar .logo{
+        margin:0;
+        font-size:1.75rem;
+        font-weight:600;
+      }
+      .topbar .logo a{
+        color:#fff;
+        text-decoration:none;
+      }
+      .container{
+        max-width:960px;
+        margin:2rem auto;
+        padding:0 1rem;
+      }
+      .flash{
+        list-style:none;
+        margin:0 0 1.5rem 0;
+        padding:0;
+        color:#c00;
+        font-weight:600;
+      }
+      .upload-form{
+        margin-top:1.5rem;
+        display:flex;
+        flex-wrap:wrap;
+        gap:.75rem;
+        align-items:center;
+      }
+      .upload-form input[type="file"]{
+        flex:1 1 auto;
+        max-width:300px;
+      }
+      .upload-form button{
+        padding:.5rem 1.25rem;
+        cursor:pointer;
+        border:1px solid #1e88e5;
+        background:#1e88e5;
+        color:#fff;
+        border-radius:4px;
+        font-size:1rem;
+      }
+      .upload-form button:hover{
+        background:#1565c0;
+        border-color:#1565c0;
+      }
+      .card{
+        margin-bottom:2rem;
+        background:#fff;
+        padding:1.25rem 1.5rem;
+        border:1px solid #dfe3e8;
+        border-radius:8px;
+        box-shadow:0 1px 3px rgba(0,0,0,.08);
+      }
+      .card h3{
+        margin-top:0;
+        margin-bottom:1rem;
+        font-size:1.25rem;
+        font-weight:600;
+      }
+      table{
+        width:100%;
+        border-collapse:collapse;
+      }
+      table.kv th,
+      table.kv td{
+        border-bottom:1px solid #eee;
+        padding:.4rem .6rem;
+        vertical-align:top;
+      }
+      table.kv th{
+        width:30%;
+        font-weight:600;
+        text-align:left;
+        color:#444;
+        background:transparent;
+      }
+      table.kv td.num{text-align:right;}
+      table.items thead th{
+        background:#e3f2fd;
+        border:1px solid #d0d7de;
+        padding:.5rem .6rem;
+        text-align:left;
+        font-weight:600;
+        font-size:.95rem;
+      }
+      table.items tbody td{
+        border:1px solid #e0e0e0;
+        padding:.45rem .6rem;
+        vertical-align:top;
+        font-size:.95rem;
+      }
+      table.items tbody tr:nth-child(odd) td{background:#fafafa;}
+      table.items td.num{text-align:right;white-space:nowrap;}
+      .raw pre{
+        background:#1b1f24;
+        color:#d0ffd0;
+        padding:1rem;
+        overflow-x:auto;
+        max-height:320px;
+        font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+        font-size:.85rem;
+        direction:ltr;
+      }
+      .raw pre:lang(ar){
+        direction:rtl;
+        text-align:right;
+      }
+      .actions{
+        margin-top:1rem;
+        font-size:1rem;
+      }
+      .actions a{
+        color:#1e88e5;
+        text-decoration:none;
+      }
+      .actions a:hover{text-decoration:underline;}
+      .footer{
+        margin-top:4rem;
+        text-align:center;
+        padding:1.5rem 0;
+        color:#555;
+        font-size:.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <h1 class="logo"><a href="{{ url_for('index') }}">Invoice OCR</a></h1>
+    </header>
+    <main class="container">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul class="flash">
+            {% for m in messages %}
+              <li>{{ m }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="footer">
+      <small>Sample OCR demo. Validate critical fields before use.</small>
+    </footer>
+  </body>
+</html>
