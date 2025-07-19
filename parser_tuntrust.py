@@ -6,8 +6,22 @@ fallbacks (lenient, noisy).
 
 If line / totals parsing from ROIs fails, fallback regex runs over full text.
 """
-
 from __future__ import annotations
+
+import unicodedata
+from decimal import Decimal
+
+
+def _remove_accents(text: str) -> str:
+    """
+    Strip all diacritics from a Unicode string,
+    so that “É”, “è”, etc. become plain ASCII equivalents.
+    """
+    return ''.join(
+        c for c in unicodedata.normalize("NFD", text)
+        if unicodedata.category(c) != "Mn"
+    )
+
 
 import re
 from typing import Dict, List, Optional
@@ -29,24 +43,29 @@ _RE_MF = re.compile(r"\bMF\s*[:\-]?\s*([A-Z0-9]+)", re.IGNORECASE)
 _RE_CCB = re.compile(r"(?:C\.?C\.?B\.?|RIB)\s*[:\-]?\s*([0-9\s]+)", re.IGNORECASE)
 
 # totals regex fallbacks
-_RE_TOTAL_HT = re.compile(r"Total\s+HT\s*([0-9.,\s]+)", re.IGNORECASE)
-_RE_TOTAL_TAX = re.compile(r"Total\s+Taxe\s*([0-9.,\s]+)", re.IGNORECASE)
-_RE_TOTAL_TTC = re.compile(r"Total\s+TTC\s*([0-9.,\s]+)", re.IGNORECASE)
-_RE_NET = re.compile(r"(?:NET\s+A\s+PAYER|NET\s+PAYABLE)\s*([0-9.,\s]+)", re.IGNORECASE)
+_RE_TOTAL_HT  = re.compile(r"Total\W*Ht\W*([\d.,\s]+)", re.IGNORECASE)
+_RE_TOTAL_TAX = re.compile(r"Total\W*Taxe\W*([\d.,\s]+)", re.IGNORECASE)
+_RE_TOTAL_TTC = re.compile(r"Total\W*TTC\W*([\d.,\s]+)", re.IGNORECASE)
+_RE_NET       = re.compile(
+    r"(?:Net\W*A\W*Payer|Netapayer|Net\W*Payable)\W*([\d.,\s]+)",
+    re.IGNORECASE,
+)
 
 # line row heuristic pattern (ref desig qty pu remise mht)
 _LINE_PAT = re.compile(
     r"""
     ^\s*
-    (?P<ref>\S+)\s+                                   # reference token
-    (?P<desig>.+?)\s+                                 # designation greedy
-    (?P<qty>[0-9][0-9.,]*)\s+                         # quantity
-    (?P<pu>[0-9][0-9.,]*)\s+                          # unit price
-    (?P<rem>[0-9][0-9.,]*)\s+                         # remise
-    (?P<mht>[0-9][0-9.,]*)\s*$                        # montant ht
+    (?P<ref>\S+)\s+                    # reference
+    (?P<desig>.+?)\s+                  # designation (greedy)
+    (?P<qty>[0-9][0-9.,]*)\s+          # quantity
+    (?P<pu>[0-9][0-9.,]*)\s+           # unit price
+    (?P<rem>[0-9][0-9.,]*)?\s+         # remise, optional
+    (?P<mht>[0-9][0-9.,]*)\s*          # montant HT
+    $  
     """,
     re.VERBOSE,
 )
+
 
 
 # ------------------------------------------------------------------ ROI helpers
@@ -201,34 +220,47 @@ def _parse_header_fallback(text_lines: List[str], hdr: InvoiceHeader) -> Invoice
 def _parse_lines_fallback(text_lines: List[str]) -> List[InvoiceLine]:
     items: List[InvoiceLine] = []
     start_idx = -1
+
+    # 1) find the header row by accent‐stripping + lowercasing
     for i, ln in enumerate(text_lines):
-        low = ln.lower()
-        if "référence" in low and "désignation" in low:
+        norm = _remove_accents(ln).lower()
+        if "reference" in norm and "designation" in norm:
             start_idx = i + 1
             break
+
     if start_idx < 0:
         return items
 
+    # 2) pull every subsequent non‐blank row until we hit any "total" keyword
     for ln in text_lines[start_idx:]:
         if not ln.strip():
             break
-        low = ln.lower()
-        if "total ht" in low or "total taxe" in low or "net a payer" in low:
+        norm_ln = _remove_accents(ln).lower()
+        if any(k in norm_ln for k in ["total ht", "totaltaxe", "totalttc", "net a payer", "netapayer"]):
             break
+
         m = _LINE_PAT.match(ln)
         if not m:
             continue
-        gd = m.groupdict()
+
+        ref   = m.group("ref")
+        desig = m.group("desig").strip()
+        qty   = parse_fr_number(m.group("qty"))
+        pu    = parse_fr_number(m.group("pu"))
+        rem   = parse_fr_number(m.group("rem")) if m.group("rem") else Decimal(0)
+        mht   = parse_fr_number(m.group("mht"))
+
         items.append(
             InvoiceLine(
-                reference=gd["ref"].strip(),
-                designation=gd["desig"].strip(),
-                quantity=parse_fr_number(gd["qty"]),
-                unit_price=parse_fr_number(gd["pu"]),
-                discount=parse_fr_number(gd["rem"]),
-                amount_ht=parse_fr_number(gd["mht"]),
+                reference   = ref,
+                designation = desig,
+                quantity    = qty,
+                unit_price  = pu,
+                discount    = rem,
+                amount_ht   = mht,
             )
         )
+
     return items
 
 

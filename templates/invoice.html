@@ -1,80 +1,120 @@
 {% extends "base.html" %}
 {% block title %}Invoice {{ invoice.header.invoice_number or '' }}{% endblock %}
 {% block content %}
-  <h2>Parsed Invoice</h2>
+<h2>Parsed Invoice</h2>
 
-  <section class="card hdr">
+<section class="card hdr">
     <h3><i class="fas fa-file-invoice"></i> Header Details</h3>
     <table class="kv">
-      <tr><th>Invoice #</th><td>{{ invoice.header.invoice_number }}</td></tr>
-      <tr><th>Date</th><td>{{ invoice.header.invoice_date }}</td></tr>
-      <tr><th>Customer Name</th><td>{{ invoice.header.customer_name }}</td></tr>
-      <tr><th>Customer Type</th><td>{{ invoice.header.customer_type }}</td></tr>
-      <tr><th>Address</th><td>{{ invoice.header.customer_address }}</td></tr>
-      <tr><th>Mode de règlement</th><td>{{ invoice.header.mode_reglement }}</td></tr>
-      <tr><th>Référence</th><td>{{ invoice.header.reference }}</td></tr>
-      <tr><th>MF</th><td>{{ invoice.header.mf }}</td></tr>
-      <tr><th>C.C.B / RIB</th><td>{{ invoice.header.rib }}</td></tr>
+        <tr>
+            <th>Invoice #</th>
+            <td>{{ invoice.header.invoice_number }}</td>
+        </tr>
+        <tr>
+            <th>Date</th>
+            <td>{{ invoice.header.invoice_date }}</td>
+        </tr>
+        <tr>
+            <th>Customer Name</th>
+            <td>{{ invoice.header.customer_name }}</td>
+        </tr>
+        <tr>
+            <th>Customer Type</th>
+            <td>{{ invoice.header.customer_type }}</td>
+        </tr>
+        <tr>
+            <th>Address</th>
+            <td>{{ invoice.header.customer_address }}</td>
+        </tr>
+        <tr>
+            <th>Mode de règlement</th>
+            <td>{{ invoice.header.mode_reglement }}</td>
+        </tr>
+        <tr>
+            <th>Référence</th>
+            <td>{{ invoice.header.reference }}</td>
+        </tr>
+        <tr>
+            <th>MF</th>
+            <td>{{ invoice.header.mf }}</td>
+        </tr>
+        <tr>
+            <th>C.C.B / RIB</th>
+            <td>{{ invoice.header.rib }}</td>
+        </tr>
     </table>
-  </section>
+</section>
 
-  <section class="card lines">
+<section class="card lines">
     <h3><i class="fas fa-list"></i> Line Items</h3>
     {% if invoice.lines %}
-      <table class="items">
+    <table class="items">
         <thead>
-          <tr>
+        <tr>
             <th>Réf</th>
             <th>Désignation</th>
             <th>Qté</th>
             <th>PU</th>
             <th>Remise</th>
             <th>Montant HT</th>
-          </tr>
+        </tr>
         </thead>
         <tbody>
-          {% for ln in invoice.lines %}
-            <tr>
-              <td>{{ ln.reference }}</td>
-              <td>{{ ln.designation }}</td>
-              <td class="num">{{ ln.quantity }}</td>
-              <td class="num">{{ ln.unit_price }}</td>
-              <td class="num">{{ ln.discount }}</td>
-              <td class="num">{{ ln.amount_ht }}</td>
-            </tr>
-          {% endfor %}
+        {% for ln in invoice.lines %}
+        <tr>
+            <td>{{ ln.reference }}</td>
+            <td>{{ ln.designation }}</td>
+            <td class="num">{{ ln.quantity }}</td>
+            <td class="num">{{ ln.unit_price }}</td>
+            <td class="num">{{ ln.discount }}</td>
+            <td class="num">{{ ln.amount_ht }}</td>
+        </tr>
+        {% endfor %}
         </tbody>
-      </table>
+    </table>
     {% else %}
-      <p>No line items parsed.</p>
+    <h4>Couldn’t parse table rows – showing all raw lines:</h4>
+    <pre>{{ invoice.raw_text }}</pre>
     {% endif %}
-  </section>
+</section>
 
-  <section class="card totals">
+<section class="card totals">
     <h3><i class="fas fa-calculator"></i> Totals</h3>
     {% if invoice.totals %}
-      <table class="kv">
-        <tr><th>Total HT</th><td class="num">{{ invoice.totals.total_ht }}</td></tr>
-        <tr><th>Total Taxe</th><td class="num">{{ invoice.totals.total_tax }}</td></tr>
-        <tr><th>Total TTC</th><td class="num">{{ invoice.totals.total_ttc }}</td></tr>
-        <tr><th>Net à payer</th><td class="num">{{ invoice.totals.net_to_pay }}</td></tr>
-      </table>
+    <table class="kv">
+        <tr>
+            <th>Total HT</th>
+            <td class="num">{{ invoice.totals.total_ht }}</td>
+        </tr>
+        <tr>
+            <th>Total Taxe</th>
+            <td class="num">{{ invoice.totals.total_tax }}</td>
+        </tr>
+        <tr>
+            <th>Total TTC</th>
+            <td class="num">{{ invoice.totals.total_ttc }}</td>
+        </tr>
+        <tr>
+            <th>Net à payer</th>
+            <td class="num">{{ invoice.totals.net_to_pay }}</td>
+        </tr>
+    </table>
     {% else %}
-      <p>No totals parsed.</p>
+    <p>No totals parsed.</p>
     {% endif %}
-  </section>
+</section>
 
-  <section class="card raw">
+<section class="card raw">
     <h3><i class="fas fa-code"></i> Raw OCR Text</h3>
     <pre>{{ invoice.raw_text }}</pre>
-  </section>
+</section>
 
-  <div class="actions">
+<div class="actions">
     <a href="{{ url_for('invoice_json', invoice_id=invoice_id) }}" class="action-btn primary">
-      <i class="fas fa-file-code"></i> View JSON (API)
+        <i class="fas fa-file-code"></i> View JSON (API)
     </a>
     <a href="{{ url_for('invoice_download_json', invoice_id=invoice_id) }}" class="action-btn secondary">
-      <i class="fas fa-download"></i> Download JSON
+        <i class="fas fa-download"></i> Download JSON
     </a>
-  </div>
+</div>
 {% endblock %}
