@@ -4,117 +4,225 @@
 <h2>Parsed Invoice</h2>
 
 <section class="card hdr">
-    <h3><i class="fas fa-file-invoice"></i> Header Details</h3>
+  <div class="invoice-header">
+    <div class="invoice-meta">
+      <div class="invoice-number">
+        <span>Invoice #</span>
+        <strong>{{ invoice.header.invoice_number }}</strong>
+      </div>
+      <div class="invoice-date">
+        <span>Date</span>
+        <strong>{{ invoice.header.invoice_date }}</strong>
+      </div>
+    </div>
+    <h3><i class="fas fa-user-circle"></i> Customer Details</h3>
+    <div class="customer-details">
+      <div>
+        <span>Name</span>
+        <p>{{ invoice.header.customer_name }}</p>
+      </div>
+      <div>
+        <span>Type</span>
+        <p>{{ invoice.header.customer_type }}</p>
+      </div>
+      <div>
+        <span>Address</span>
+        <p>{{ invoice.header.customer_address }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="payment-details">
+    <h3><i class="fas fa-credit-card"></i> Payment Information</h3>
     <table class="kv">
-        <tr>
-            <th>Invoice #</th>
-            <td>{{ invoice.header.invoice_number }}</td>
-        </tr>
-        <tr>
-            <th>Date</th>
-            <td>{{ invoice.header.invoice_date }}</td>
-        </tr>
-        <tr>
-            <th>Customer Name</th>
-            <td>{{ invoice.header.customer_name }}</td>
-        </tr>
-        <tr>
-            <th>Customer Type</th>
-            <td>{{ invoice.header.customer_type }}</td>
-        </tr>
-        <tr>
-            <th>Address</th>
-            <td>{{ invoice.header.customer_address }}</td>
-        </tr>
-        <tr>
-            <th>Mode de règlement</th>
-            <td>{{ invoice.header.mode_reglement }}</td>
-        </tr>
-        <tr>
-            <th>Référence</th>
-            <td>{{ invoice.header.reference }}</td>
-        </tr>
-        <tr>
-            <th>MF</th>
-            <td>{{ invoice.header.mf }}</td>
-        </tr>
-        <tr>
-            <th>C.C.B / RIB</th>
-            <td>{{ invoice.header.rib }}</td>
-        </tr>
+      <tr>
+        <th>Mode de règlement</th>
+        <td>{{ invoice.header.mode_reglement }}</td>
+      </tr>
+      <tr>
+        <th>Référence</th>
+        <td>{{ invoice.header.reference }}</td>
+      </tr>
+      <tr>
+        <th>MF</th>
+        <td>{{ invoice.header.mf }}</td>
+      </tr>
+      <tr>
+        <th>C.C.B / RIB</th>
+        <td>{{ invoice.header.rib }}</td>
+      </tr>
     </table>
+  </div>
 </section>
 
 <section class="card lines">
-    <h3><i class="fas fa-list"></i> Line Items</h3>
-    {% if invoice.lines %}
+  <h3><i class="fas fa-list"></i> Line Items</h3>
+  {% if invoice.lines %}
+  <div class="table-responsive">
     <table class="items">
-        <thead>
+      <thead>
         <tr>
-            <th>Réf</th>
-            <th>Désignation</th>
-            <th>Qté</th>
-            <th>PU</th>
-            <th>Remise</th>
-            <th>Montant HT</th>
+          <th>Réf</th>
+          <th>Désignation</th>
+          <th>Qté</th>
+          <th>PU</th>
+          <th>Remise</th>
+          <th>Montant HT</th>
         </tr>
-        </thead>
-        <tbody>
+      </thead>
+      <tbody>
         {% for ln in invoice.lines %}
         <tr>
-            <td>{{ ln.reference }}</td>
-            <td>{{ ln.designation }}</td>
-            <td class="num">{{ ln.quantity }}</td>
-            <td class="num">{{ ln.unit_price }}</td>
-            <td class="num">{{ ln.discount }}</td>
-            <td class="num">{{ ln.amount_ht }}</td>
+          <td>{{ ln.reference }}</td>
+          <td>{{ ln.designation }}</td>
+          <td class="num">{{ ln.quantity }}</td>
+          <td class="num">{{ ln.unit_price }}</td>
+          <td class="num">{{ ln.discount }}</td>
+          <td class="num">{{ ln.amount_ht }}</td>
         </tr>
         {% endfor %}
-        </tbody>
+      </tbody>
     </table>
-    {% else %}
-    <h4>Couldn’t parse table rows – showing all raw lines:</h4>
+  </div>
+  {% else %}
+  <div class="parse-error">
+    <h4><i class="fas fa-exclamation-triangle"></i> Couldn't parse table rows</h4>
+    <p>Showing all raw lines:</p>
     <pre>{{ invoice.raw_text }}</pre>
-    {% endif %}
+  </div>
+  {% endif %}
 </section>
 
 <section class="card totals">
-    <h3><i class="fas fa-calculator"></i> Totals</h3>
-    {% if invoice.totals %}
-    <table class="kv">
-        <tr>
-            <th>Total HT</th>
-            <td class="num">{{ invoice.totals.total_ht }}</td>
-        </tr>
-        <tr>
-            <th>Total Taxe</th>
-            <td class="num">{{ invoice.totals.total_tax }}</td>
-        </tr>
-        <tr>
-            <th>Total TTC</th>
-            <td class="num">{{ invoice.totals.total_ttc }}</td>
-        </tr>
-        <tr>
-            <th>Net à payer</th>
-            <td class="num">{{ invoice.totals.net_to_pay }}</td>
-        </tr>
-    </table>
-    {% else %}
-    <p>No totals parsed.</p>
-    {% endif %}
+  <h3><i class="fas fa-calculator"></i> Totals</h3>
+  {% if invoice.totals %}
+  <div class="totals-grid">
+    <div class="total-item">
+      <span>Total HT</span>
+      <strong>{{ invoice.totals.total_ht }}</strong>
+    </div>
+    <div class="total-item">
+      <span>Total Taxe</span>
+      <strong>{{ invoice.totals.total_tax }}</strong>
+    </div>
+    <div class="total-item">
+      <span>Total TTC</span>
+      <strong>{{ invoice.totals.total_ttc }}</strong>
+    </div>
+    <div class="total-item highlight">
+      <span>Net à payer</span>
+      <strong>{{ invoice.totals.net_to_pay }}</strong>
+    </div>
+  </div>
+  {% else %}
+  <p class="no-totals">No totals parsed.</p>
+  {% endif %}
 </section>
 
 <section class="card raw">
-    <h3><i class="fas fa-code"></i> Raw OCR Text</h3>
-    <pre>{{ invoice.raw_text }}</pre>
+  <h3><i class="fas fa-code"></i> Raw OCR Text</h3>
+  <pre>{{ invoice.raw_text }}</pre>
 </section>
 
 <div class="actions">
-    <a href="{{ url_for('invoice_json', invoice_id=invoice_id) }}" class="action-btn primary">
-        <i class="fas fa-file-code"></i> View JSON (API)
-    </a>
-    <a href="{{ url_for('invoice_download_json', invoice_id=invoice_id) }}" class="action-btn secondary">
-        <i class="fas fa-download"></i> Download JSON
-    </a>
+  <a href="{{ url_for('invoice_json', invoice_id=invoice_id) }}" class="action-btn primary">
+    <i class="fas fa-file-code"></i> View JSON (API)
+  </a>
+  <a href="{{ url_for('invoice_download_json', invoice_id=invoice_id) }}" class="action-btn secondary">
+    <i class="fas fa-download"></i> Download JSON
+  </a>
 </div>
+
+<style>
+  .invoice-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .invoice-meta {
+    background: rgba(67, 97, 238, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .invoice-number, .invoice-date {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .customer-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .customer-details > div {
+    background: rgba(67, 97, 238, 0.03);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+
+  .customer-details span {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--gray);
+    margin-bottom: 0.3rem;
+  }
+
+  .payment-details table {
+    background: rgba(114, 9, 183, 0.03);
+    border-radius: 12px;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .totals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .total-item {
+    background: rgba(67, 97, 238, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .total-item span {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--gray);
+    margin-bottom: 0.5rem;
+  }
+
+  .total-item.highlight {
+    background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(114, 9, 183, 0.1));
+    border: 1px solid rgba(67, 97, 238, 0.2);
+  }
+
+  .parse-error {
+    background: rgba(239, 71, 111, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border-left: 4px solid var(--danger);
+  }
+
+  @media (max-width: 768px) {
+    .invoice-header {
+      grid-template-columns: 1fr;
+    }
+
+    .customer-details {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
 {% endblock %}
